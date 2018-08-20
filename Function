@@ -1,0 +1,188 @@
+#include <iostream>
+#include<stdlib.h>
+using namespace std;
+
+template <class T>
+inline int getlength(T& a)
+{
+	return sizeof(a) / sizeof(a[0]);
+}
+
+void swap(int *a, int x, int y)
+{
+	int z = a[x];
+	a[x] = a[y];
+	a[y] = z;
+}
+
+class sort
+{
+public:
+	void Bubble(int *a, int length);
+	void Select(int *a, int length);
+	void Insert(int *a, int length);
+	void Merge(int *a, int l, int r, int *result);
+	void Quick(int *a, int l, int r);
+	void Heap(int *a,int length);
+	void printnum(int *a, int length);
+private:
+	void heapInsert(int *a,int index);
+	void heapify(int *a,int index,int size);
+};
+
+
+int main() {
+	sort a;
+	int x[] = { 4,321,5426,42,532143,12,46,536,232146,6,54,432142,4,5462 };
+	int length1 = getlength(x);
+	int result[14];
+	//memset(result, 0, sizeof(result));
+	//a.Bubble(x, getlength(x));//冒泡
+	//a.Select(x, getlength(x));//选择
+	//a.Insert(x, getlength(x));//插入
+	//a.Merge(x, 0,length1,result);//归并
+	//a.Quick(x, 0, getlength(x) - 1);//快速
+	a.Heap(x,getlength(x));//堆
+	a.printnum(x, getlength(x));
+	system("pause");
+	return 0;
+}
+
+void sort::printnum(int *a, int length)
+{
+	for (int i(0); i<length;++i)
+		cout << a[i] << " ";
+}
+
+
+void sort::Bubble(int *a, int length)
+{
+	for (int i = length - 1; i>0; i--)
+	{
+		for (int j(0); j<i&&j+1<=length - 1; j++)
+		{
+			if (a[j]>a[j + 1])
+				swap(a, j, j + 1);
+		}
+	}
+}
+
+void sort::Select(int *a, int length)
+{
+	int min(0);
+	for (int i(0); i<=length - 1; ++i)
+	{
+		min = a[i];
+		int x = i;
+		for (int j = i + 1; j<=length - 1; ++j)
+		{
+			if (a[j]<min)
+			{
+				min = a[j];
+				x = j;
+			}
+		}
+		swap(a, i, x);
+	}
+}
+
+void sort::Insert(int *a, int length) 
+{
+	for (int i(0); i<=length - 1; ++i)
+	{
+		for (int j = i + 1; j>0&&j<=length - 1 ; --j)
+		{
+			if (a[j] < a[j - 1])
+				swap(a, j, j - 1);
+		}
+	}
+}
+
+void sort::Merge(int *a, int l , int r,int *result)
+{
+	if (r - l > 1)
+	{
+		int mid = l + (r - l) / 2;
+		int p1 = l, p2 = mid, i = l;
+		Merge(a, l, mid, result);
+		Merge(a, mid, r, result);
+		while (p1 < mid || p2 < r)
+		{
+			if (p2 >= r || (p1 < mid&&a[p1] <= a[p2]))
+				result[i++] = a[p1++];
+			else
+				result[i++] = a[p2++];
+		}
+		for (i = l; i < r; i++)
+			a[i] = result[i];
+	}
+}
+
+void sort::Quick(int *a, int l, int r)
+{
+	int x = l, y = r;
+	if (l < r)
+	{
+		int less = l - 1;
+		int more = r;
+		while (l < more)
+		{
+			if (a[l] < a[r])
+			{
+				swap(a, ++less, l++);
+			}
+			else if (a[l] > a[r])
+			{
+				swap(a, --more, l);
+			}
+			else
+			{
+				++l;
+			}
+		}
+		swap(a, more, r);
+		Quick(a, x, less);
+		Quick(a, more+1, y);
+	}
+}
+
+void sort::Heap(int *a,int length)
+{
+	for (int i(0); i < length; i++)
+	{
+		heapInsert(a, i);
+	}
+	int size = length;
+	swap(a, 0, --size);
+	while (size > 0)
+	{
+		heapify(a, 0, size);
+		swap(a, 0, --size);
+	}
+}
+
+void sort::heapInsert(int *a, int index)//(父节点为(index - 1) / 2) (左子树为(index * 2 + 1)) (右子树为(index * 2 + 2))
+{
+	while (a[index] > a[(index - 1) / 2])
+	{
+		swap(a, index, (index - 1) / 2);
+		index = (index - 1) / 2;
+	}
+}
+
+void sort::heapify(int *a, int index, int size)
+{
+	int left = index * 2 + 1;
+	while (left < size)
+	{
+		int largest = left + 1 < size &&a[left + 1] > a[left] ? left + 1 : left;
+		largest = a[largest] > a[index] ? largest : index;
+		if (largest == index)
+		{
+			break;
+		}
+		swap(a, largest, index);
+		index = largest;
+		left = index * 2 + 1;
+	}
+}
